@@ -1,0 +1,32 @@
+name: 'GH AWS Remote workflow'
+description: 'Checkout another repo with git submodules and execute the provided script expected to be in that repo'
+inputs:
+  repo:
+    description: 'The name of the repository'
+    required: true
+  initialiser-repo:
+    description: 'The repository initialising the action'
+    required: true
+  branch:
+    description: 'The repository branch initialising the action'
+    required: true
+  script_file_name:
+    description: 'The filename of the script to run in the repo'
+    required: true
+  token:
+    description: 'The token to use to access the GitHub API'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repo }}
+        ssh-key: ${{ inputs.token }}
+        submodules: recursive
+    - run: |
+        export INIT_REPO=${{ inputs.initialiser-repo }}
+        export BRANCH=${{ inputs.branch }} 
+        ./${{ inputs.script_file_name }}
+      shell: bash
